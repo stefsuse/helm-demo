@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Release.Name }}-disableapi-test-{{ randAlphaNum 5 | lower }}"
+  annotations:
+    "helm.sh/hook": test-failure
+spec:
+  containers:
+    - name: {{ .Release.Name }}-disableapi-test
+      image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+      env: 
+      - name: "DISABLE_API"
+        value: "true"
+      command: ["/chartmuseum", 
+                "--storage-local-rootdir=/storage",
+                "--port={{ .Values.service.internalPort }}"]
+      command: ["curl http://localhost:{{ .Values.service.internalPort }}/api/charts"]
+  restartPolicy: Never
